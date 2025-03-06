@@ -1,0 +1,27 @@
+.auth-btn {
+    background: white;
+    color: #007bff;
+    border: 1px solid #007bff;
+    padding: 8px 12px;
+    margin-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+  
+  .auth-btn:hover {
+    background: #007bff;
+    color: white;
+  }
+  
+  .signup {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+  }
+  
+  .signup:hover {
+    background: #218838;
+  }
+  
