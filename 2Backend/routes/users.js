@@ -6,20 +6,7 @@ import db from "../config/db.js";
 const router = express.Router();
 
 // Register User
-router.post("/register", async (req, res) => {
-  const { username, email, password, role } = req.body;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  db.query(
-    "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
-    [username, email, hashedPassword, role],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "User registered successfully" });
-    }
-  );
-});
 
 router.get("/", async (req, res) => {
     try {
@@ -31,7 +18,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/register", async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
@@ -60,21 +47,50 @@ router.post("/", async (req, res) => {
 });
 
 // Login User
-router.post("/login", (req, res) => {
-  const { email, password } = req.body;
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], async (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (result.length === 0) return res.status(400).json({ message: "User not found" });
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
-    const user = result[0];
+    // Get user from database
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const user = users[0];
     const validPassword = await bcrypt.compare(password, user.password);
 
-    if (!validPassword) return res.status(400).json({ message: "Invalid credentials" });
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
 
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.json({ token });
-  });
+    const token = jwt.sign(
+      { id: user.id, role: user.role }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "1h" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Error during login:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
 });
 
 export default router;

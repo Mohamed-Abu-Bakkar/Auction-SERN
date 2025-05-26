@@ -8,17 +8,17 @@ import Navbar from "./components/Navbar";
 import "./App.css";
 
 
+
 function App() {
   return (
     <>
-      <Navbar />
+      
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/auctions" element={<Auctions />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/bids" element={<Bids />} />
-
+        <Route path="/auctions" element={<Auctions />} />
+        <Route path="/" element={<Home />} />
       </Routes>
     </>
   );

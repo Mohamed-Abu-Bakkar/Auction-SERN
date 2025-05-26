@@ -4,19 +4,21 @@ import axios from "axios";
 
 
 const Register = () => {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");  // Changed from name to username
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");  // Default value
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        name,
+      const res = await axios.post("http://localhost:5000/api/users/register", {  // Updated endpoint
+        username,  // Changed from name to username
         email,
         password,
+        role,
       });
 
       console.log("Response:", res.data);
@@ -34,9 +36,9 @@ const Register = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         />
         <input
@@ -46,6 +48,7 @@ const Register = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+        
         <input
           type="password"
           placeholder="Password"
@@ -53,6 +56,14 @@ const Register = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          required
+        >
+          <option value="buyer">Buyer</option>
+          <option value="seller">Seller</option>
+        </select>
         <button type="submit">Register</button>
       </form>
     </div>
