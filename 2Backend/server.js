@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import db from "./config/db.js";
 import userRoutes from "./routes/users.js";
 import auctionRoutes from "./routes/auctions.js";
+import bidsRoutes from "./routes/bids.js";
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auctions", auctionRoutes);
+app.use("/api/bids", bidsRoutes);
 
 // Database Connection Check
 db.getConnection((err, connection) => {

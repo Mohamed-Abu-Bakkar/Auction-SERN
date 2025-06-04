@@ -1,9 +1,9 @@
 import express from "express";
-import pool from "../config/db.js";  // ✅ Import database connection
+import pool from "../config/db.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/list", async (req, res) => {
     try {
         const [rows] = await pool.query("SELECT * FROM auctions"); // ✅ Use async/await
         res.json(rows);
@@ -13,11 +13,11 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/new", async (req, res) => {
     try {
-        const { seller_id, title, description, starting_price, start_time, end_time } = req.body;
+        const { title, description, starting_price, start_time, end_time } = req.body;
 
-        if (!seller_id || !title || !starting_price || !start_time || !end_time) {
+        if (!title || !starting_price || !start_time || !end_time) {
             return res.status(400).json({ message: "All required fields must be provided" });
         }
 
@@ -33,5 +33,23 @@ router.post("/", async (req, res) => {
     }
 });
 
+// Get auction details by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM auctions WHERE id = ?",
+      [req.params.id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Auction not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Error fetching auction:", err);
+    res.status(500).json({ error: "Failed to fetch auction" });
+  }
+});
 
 export default router;

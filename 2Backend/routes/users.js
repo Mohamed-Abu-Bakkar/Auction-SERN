@@ -2,13 +2,12 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
+import { verifyToken, verifyAdmin, generateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Register User
-
-
-router.get("/", async (req, res) => {
+// Protected route - Get all users (admin only)
+router.get("/Show", verifyToken, verifyAdmin, async (req, res) => {
     try {
         const [users] = await db.query("SELECT id, username, email, role, created_at FROM users");
         res.status(200).json(users);
@@ -18,6 +17,7 @@ router.get("/", async (req, res) => {
     }
 });
 
+// Public routes - Register and Login
 router.post("/register", async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
@@ -46,51 +46,41 @@ router.post("/register", async (req, res) => {
     }
 });
 
-// Login User
 router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+
+        if (users.length === 0) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const user = users[0];
+        const validPassword = await bcrypt.compare(password, user.password);
+
+        if (!validPassword) {
+            return res.status(400).json({ message: "Invalid password" });
+        }
+
+        const token = generateToken(user);
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Error during login:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
     }
-
-    // Get user from database
-    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-
-    if (users.length === 0) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    const user = users[0];
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, role: user.role }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: "1h" }
-    );
-
-    res.json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role
-      }
-    });
-
-  } catch (error) {
-    console.error("❌ Error during login:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  }
 });
 
 export default router;

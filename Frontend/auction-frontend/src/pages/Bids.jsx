@@ -12,7 +12,7 @@ function Bids() {
 
   return (
     <div className="p-10">
-      <h2 className="text-2xl mb-4">Your Bids</h2>
+      <h2 className="text-2xl mb-4">Yodur Bids</h2>
       <ul>
         {bids.map((bid) => (
           <li key={bid.id} className="border p-4 mb-2">

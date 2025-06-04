@@ -1,0 +1,53 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Auction System",
+  "dateExported": "2024-01-22T08:30:00.000Z",
+  "version": "1.1",
+  "folders": [
+    {
+      "name": "Auctions",
+      "items": [
+        {
+          "name": "Get Auction Details",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/auctions/{{auction_id}}",
+            "params": []
+          }
+        },
+        {
+          "name": "Get All Auctions",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/api/auctions/list"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bids",
+      "items": [
+        {
+          "name": "Place Bid",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:5000/api/bids",
+            "body": {
+              "contentType": "application/json",
+              "body": {
+                "auction_id": "{{auction_id}}",
+                "bid_amount": 150.00
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variables": [
+    {
+      "name": "auction_id",
+      "value": "1"
+    }
+  ]
+}
